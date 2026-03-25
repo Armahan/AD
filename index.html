@@ -402,6 +402,8 @@ local Module = {}
 
 --// Public Variables
 Module.DebugMode = true
+Module.UseDeathExplosion = true
+Module.UseLimbExplosion = false
 
 --// Public Events Registry
 Module.Events = {
@@ -538,17 +540,23 @@ function Module.InitCharacter(character)
 	humanoid.Died:Connect(function()
 		Module.Events.OnFatalDamage:Fire(character)
 
-		if character.PrimaryPart then
-			CreateVisualExplosion(character.PrimaryPart.Position, 10)
-		end
-		for _, folder in pairs(character:GetDescendants()) do
-			if folder:IsA("Folder") and folder:GetAttribute("Health") then
-				local centerPart = folder:FindFirstChildOfClass("BasePart")
-				if centerPart then
-					CreateVisualExplosion(centerPart.Position, 4)
+		if Module.UseDeathExplosion then
+			local originPosition = character.PrimaryPart and character.PrimaryPart.Position or character:GetPivot().Position
+
+			-- Optional: Global visual explosion
+			CreateVisualExplosion(originPosition, 10)
+
+			-- Shatter EVERY remaining valid folder
+			for _, folder in pairs(character:GetDescendants()) do
+				if folder:IsA("Folder") and folder:GetAttribute("Health") then
+					-- Check if it hasn't already been destroyed by a 0 HP call
+					if folder:GetAttribute("Health") > 0 then
+						ShatterFolder(folder, originPosition, 50) -- Apply standard force for full body shatter
+					end
 				end
 			end
 		end
+
 		Module.CleanUp(character)
 	end)
 
@@ -638,7 +646,10 @@ function Module.ApplyAreaDamage(character, impactPosition, baseDamage, armorPene
 
 						Module.Events.OnPartBroken:Fire(character, folder.Name)
 
-						CreateVisualExplosion(closestPart.Position, 5)
+						if Module.UseLimbExplosion then
+							CreateVisualExplosion(closestPart.Position, 5)
+						end
+
 						ShatterFolder(folder, impactPosition, force)
 
 						local isVital = folder:GetAttribute("Vital") or false
