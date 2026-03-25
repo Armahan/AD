@@ -1,10 +1,10 @@
-# Advanced Damage System (AD) for Roblox
+<img width="701" height="495" alt="image" src="https://github.com/user-attachments/assets/911032cf-058b-43e6-a193-8d4032ee7dce" /><img width="701" height="495" alt="image" src="https://github.com/user-attachments/assets/fa74dad4-85e3-4632-b812-49203dfe69f4" /><img width="701" height="495" alt="image" src="https://github.com/user-attachments/assets/635835ea-4c8b-4873-8630-4a1032a60592" /># Advanced Damage System (AD) for Roblox
 
 **Created by Samtyy** *(Aka Armahan, Prymitif, Durkheim)*
 
 The **Advanced Damage System (AD)** is a highly detailed, localized damage engine for Roblox characters. It introduces limb-based health points, an advanced armor penetration mathematical model, dynamic bleeding states, and procedural visual degradation (heating metal effect) that eventually leads to physical dismemberment.
 
-![AD Preview](...)
+![AD Preview](https://image.noelshack.com/fichiers/2026/13/3/1774425981-capture-d-cran-2026-03-25-090550.png)
 
 ## Key Features
 
