@@ -4,7 +4,7 @@
 
 The **Advanced Damage System (AD)** is a highly detailed, localized damage engine for Roblox characters. It introduces limb-based health points, an advanced armor penetration mathematical model, dynamic bleeding states, and procedural visual degradation (heating metal effect) that eventually leads to physical dismemberment.
 
-![AD Preview](https://image.noelshack.com/placeholder-ad-image.png)
+![AD Preview](...)
 
 ## Key Features
 
@@ -19,7 +19,7 @@ The **Advanced Damage System (AD)** is a highly detailed, localized damage engin
 
 For the complete API reference, Event Registry details, and Folder Attributes (like `Health`, `ArmorLevel`, and `Vital`), please visit the official documentation website:
 
-**[Read the AD Documentation Here](https://armahan.github.io/AD/#overview)**
+**[Read the AD Documentation Here](https://armahan.github.io/AD/)**
 
 ## Quick Setup
 
