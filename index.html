@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD | Advanced Damage System</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    
+    <style>
+        :root {
+            /* Roblox Creator Hub Dark Theme Colors */
+            --bg-main: #0b0f19;
+            --bg-sidebar: #111522;
+            --bg-surface: #1e232d;
+            --bg-code: #0d1117;
+            
+            --text-title: #ffffff;
+            --text-body: #bdc1c6;
+            --text-muted: #8b929a;
+            
+            --accent-blue: #00a2ff;
+            --border-color: #2a2f3a;
+            
+            --tag-bg: #2a2f3a;
+            --tag-text: #e8eaed;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Gotham", "Segoe UI", -apple-system, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            display: grid;
+            grid-template-columns: 280px 1fr 240px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* --- Left Sidebar (Global Nav) --- */
+        .left-sidebar {
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 0;
+            position: fixed;
+            width: 280px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            padding: 0 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .left-sidebar ul { list-style: none; margin-bottom: 25px;}
+        .left-sidebar ul li a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--text-body);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+        }
+        .left-sidebar ul li a:hover {
+            background-color: var(--bg-surface);
+            color: var(--text-title);
+            border-left-color: var(--accent-blue);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            grid-column: 2;
+            padding: 40px 60px;
+            max-width: 1050px;
+        }
+
+        .breadcrumbs { font-size: 0.85rem; color: var(--accent-blue); margin-bottom: 20px; }
+        .breadcrumbs span { color: var(--text-muted); }
+
+        h1 { color: var(--text-title); font-size: 2.4rem; margin-bottom: 5px; font-weight: 700; }
+        .author { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px; display: block; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;}
+        
+        h2 { color: var(--text-title); font-size: 1.6rem; margin-top: 50px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;}
+        h3 { color: var(--text-title); font-size: 1.2rem; margin-top: 35px; margin-bottom: 10px; }
+        h4 { color: var(--text-title); font-size: 1rem; margin-top: 20px; margin-bottom: 5px; }
+        
+        p { margin-bottom: 15px; font-size: 0.95rem; }
+        ul, ol { margin-bottom: 15px; margin-left: 25px; font-size: 0.95rem;}
+        li { margin-bottom: 5px; }
+
+        .tag-container { margin-bottom: 20px; display: flex; gap: 10px; }
+        .tag {
+            background-color: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+        }
+        .tag.server { border-color: #d29922; color: #d29922; }
+        .tag.client { border-color: #2ea043; color: #2ea043; }
+        .tag.warning { border-color: #f85149; color: #f85149; }
+
+        .callout {
+            background-color: var(--bg-surface);
+            border-left: 4px solid var(--accent-blue);
+            padding: 15px 20px;
+            border-radius: 0 6px 6px 0;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border-color); text-align: left; font-size: 0.9rem;}
+        th { color: var(--text-title); font-weight: 500; background-color: var(--bg-surface);}
+
+        pre {
+            background-color: var(--bg-code);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        code { font-family: "Fira Code", Consolas, monospace; font-size: 0.85rem; }
+        p code, td code, li code {
+            background-color: var(--bg-surface);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            color: var(--text-title);
+        }
+
+        /* --- Right Sidebar --- */
+        .right-sidebar {
+            background-color: var(--bg-main);
+            position: fixed;
+            right: 0;
+            width: 240px;
+            height: 100vh;
+            padding: 40px 20px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .right-sidebar-title { color: var(--text-title); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
+        .right-sidebar ul { list-style: none; }
+        .right-sidebar ul li { margin-bottom: 8px; }
+        .right-sidebar ul li a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+        .right-sidebar ul li a:hover { color: var(--text-title); }
+        .right-sidebar ul li.sub-link { margin-left: 15px; border-left: 1px solid var(--border-color); padding-left: 10px;}
+
+        @media (max-width: 1100px) {
+            body { grid-template-columns: 240px 1fr; }
+            .right-sidebar { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="left-sidebar">
+        <div class="sidebar-title">Engine Guide</div>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#setup">Setup & Installation</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+        </ul>
+        <div class="sidebar-title">API Reference</div>
+        <ul>
+            <li><a href="#server-api">Server Methods</a></li>
+            <li><a href="#events-api">Events</a></li>
+            <li><a href="#attributes">Folder Attributes</a></li>
+        </ul>
+        <div class="sidebar-title">Resources</div>
+        <ul>
+            <li><a href="#example-script">Example Usage</a></li>
+            <li><a href="#source-code">Source Code</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div class="breadcrumbs">Modules <span>/</span> Combat <span>/</span> AD</div>
+
+        <h1 id="overview">Advanced Damage System (AD)</h1>
+        <span class="author">Created by <b>Samtyy</b> (Aka Armahan, Prymitif, Durkheim)</span>
+        
+        <div class="tag-container">
+            <span class="tag server">Server-Side</span>
+            <span class="tag">ModuleScript</span>
+        </div>
+
+        <p>The Advanced Damage System (AD) is a highly detailed, localized damage engine for Roblox characters. It introduces limb-based health points, an advanced armor penetration mathematical model, dynamic bleeding states, and procedural visual degradation (heating metal effect) that eventually leads to physical dismemberment.</p>
+
+        <div class="callout">
+            <strong>Architecture Strictness:</strong> This system requires a specific hierarchy to function correctly. The character's model must contain Folders representing limbs (e.g., <code>LeftArm</code>), and those folders must contain the actual BaseParts (e.g., <code>LeftHand</code>, <code>LeftLowerArm</code>) as well as the required Attributes.
+        </div>
+
+        <h2 id="setup">Setup & Installation</h2>
+        <p>Ensure your character rigs are configured properly before attempting to initialize the engine:</p>
+
+        <ol>
+            <li>Place the <strong>AD ModuleScript</strong> inside <code>ReplicatedStorage</code> or <code>ServerScriptService</code>.</li>
+            <li>Structure your custom rig so that limbs are grouped within <code>Folders</code> (e.g., <code>Character.Body.LeftArm</code>).</li>
+            <li>Assign a <code>Health</code> attribute (Number) to the specific limb <strong>Folders</strong> you want to be destructible.</li>
+            <li>Call <code>AD.InitCharacter(rig)</code> on the server as soon as the character spawns.</li>
+        </ol>
+
+        <h2 id="architecture">System Architecture</h2>
+        <p>The AD module processes damage using proximity-based calculations and hierarchical scanning:</p>
+        <ul>
+            <li><strong>Proximity Damage:</strong> Instead of hitting a specific part, the system strikes a <code>Vector3</code> position in space. It calculates the magnitude from the impact point to the closest part inside a limb folder, applying a distance multiplier to the base damage.</li>
+            <li><strong>Armor Mathematics:</strong> Armor penetration is calculated via subtraction: <code>Difference = ArmorLevel - ArmorPenetration</code>.
+                <ul>
+                    <li>If the difference is <code>≥ 2</code>, the attack is fully blocked (0 damage).</li>
+                    <li>If the difference is <code>== 1</code>, the attack deals 50% damage.</li>
+                    <li>If the difference is <code>≤ 0</code>, the attack deals 100% damage.</li>
+                </ul>
+            </li>
+            <li><strong>Visual Degradation:</strong> As a limb loses health, the parts within its folder seamlessly interpolate their color toward a bright, heated orange. Upon reaching critical health, the material forces a switch to Neon.</li>
+        </ul>
+
+        <h2 id="server-api">Server Methods</h2>
+        <p>Interact with the AD system through these public module functions.</p>
+
+        <h3 id="init-character">AD.InitCharacter(character)</h3>
+        <div class="tag-container"><span class="tag server">Server</span></div>
+        <p>Scans the provided character model for valid limb folders, registers their base colors and materials to memory, and hooks up the global death explosion sequences.</p>
+        
+        <h3 id="apply-area-damage">AD.ApplyAreaDamage(character, impactPosition, baseDamage, armorPenetration, radius, force)</h3>
+        <div class="tag-container"><span class="tag server">Server</span></div>
+        <p>The core damage calculation function. Scans all limb folders within the defined radius of the impact point and applies the mathematical armor and distance modifiers.</p>
+        
+        <h4>Parameters</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>character</code></td>
+                    <td>Model</td>
+                    <td>The target character model containing a Humanoid.</td>
+                </tr>
+                <tr>
+                    <td><code>impactPosition</code></td>
+                    <td>Vector3</td>
+                    <td>The exact center of the explosion or bullet impact.</td>
+                </tr>
+                <tr>
+                    <td><code>baseDamage</code></td>
+                    <td>number</td>
+                    <td>The maximum possible damage dealt at point-blank range.</td>
+                </tr>
+                <tr>
+                    <td><code>armorPenetration</code></td>
+                    <td>number</td>
+                    <td>The penetration value to compare against the folder's ArmorLevel.</td>
+                </tr>
+                <tr>
+                    <td><code>radius</code></td>
+                    <td>number</td>
+                    <td>The spherical radius of the damage effect in studs.</td>
+                </tr>
+                <tr>
+                    <td><code>force</code></td>
+                    <td>number</td>
+                    <td>The physical velocity applied to parts when a limb shatters.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 id="clean-up">AD.CleanUp(character)</h3>
+        <div class="tag-container"><span class="tag server">Server</span></div>
+        <p>Clears the character's original states from memory and cancels any active bleeding threads. Automatically called upon the Humanoid's death.</p>
+
+
+        <h2 id="events-api">Events</h2>
+        <p>The module exposes a public registry of <code>BindableEvents</code> allowing external scripts to react to the combat states.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Arguments Passed</th>
+                    <th>Trigger Condition</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>OnDamageTaken</code></td>
+                    <td><code>(character, folderName, finalDamage, newHealth)</code></td>
+                    <td>Fires whenever a limb folder successfully takes damage after armor checks.</td>
+                </tr>
+                <tr>
+                    <td><code>OnPartBroken</code></td>
+                    <td><code>(character, folderName)</code></td>
+                    <td>Fires the exact moment a limb folder's health drops to 0.</td>
+                </tr>
+                <tr>
+                    <td><code>OnBleedingStarted</code></td>
+                    <td><code>(character, folderName, bleedDamagePerSecond)</code></td>
+                    <td>Fires when a non-vital limb breaks, initiating a bleeding thread.</td>
+                </tr>
+                <tr>
+                    <td><code>OnFatalDamage</code></td>
+                    <td><code>(character)</code></td>
+                    <td>Fires when a vital limb breaks, or the Humanoid completely dies.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="attributes">Folder Attributes</h2>
+        <p>Attach these Custom Attributes to the <code>Folders</code> containing your BaseParts to define their mechanical properties.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Attribute Name</th>
+                    <th>Value Type</th>
+                    <th>Behavior</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>Health</code></td>
+                    <td>number</td>
+                    <td><strong>(Required)</strong> The current health of the limb folder. If missing, the folder is ignored.</td>
+                </tr>
+                <tr>
+                    <td><code>MaxHealth</code></td>
+                    <td>number</td>
+                    <td>Used for bleeding calculation and visual ratios. Auto-generated if omitted.</td>
+                </tr>
+                <tr>
+                    <td><code>ArmorLevel</code></td>
+                    <td>number</td>
+                    <td>Defines resistance against the incoming <code>armorPenetration</code> parameter. Defaults to 1.</td>
+                </tr>
+                <tr>
+                    <td><code>BleedingLevel</code></td>
+                    <td>number</td>
+                    <td>Multiplier for the base bleeding rate (10% of MaxHealth per second). Setting to 0 disables bleeding for this limb entirely.</td>
+                </tr>
+                <tr>
+                    <td><code>Vital</code></td>
+                    <td>boolean</td>
+                    <td>If set to true, the destruction of this limb will instantly set the global Humanoid health to 0, killing the character.</td>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <h2 id="example-script">Example Usage</h2>
+        <p>A simple server implementation initializing the system and applying localized damage.</p>
+        <pre><code class="language-lua">local AdvancedDamageSystem = require(game.ReplicatedStorage.AD)
+
+local impactPosition = workspace.Rig.Body.LeftArm.LeftLowerArm.Position
+local baseDamage = 1500
+local armorPenetration = 1
+local radius = 3
+local force = 50
+
+AdvancedDamageSystem.InitCharacter(workspace.Rig)
+workspace.Rig.Humanoid.Died:Connect(function()
+	AdvancedDamageSystem.CleanUp(workspace.Rig)
+end)
+
+task.wait(2)
+AdvancedDamageSystem.ApplyAreaDamage(workspace.Rig, impactPosition, baseDamage, armorPenetration, radius, force)
+task.wait(2)
+AdvancedDamageSystem.ApplyAreaDamage(workspace.Rig, impactPosition, baseDamage, armorPenetration, radius, force)</code></pre>
+
+        <h2 id="source-code">Source Code</h2>
+        <h3 id="code-server">ModuleScript (AD)</h3>
+        <p>Paste the following into your AD ModuleScript.</p>
+        <pre><code class="language-lua">--// Services
+local Debris = game:GetService("Debris")
+
+--// Module Definition
+local Module = {}
+
+--// Public Variables
+Module.DebugMode = true
+
+--// Public Events Registry
+Module.Events = {
+	OnDamageTaken = Instance.new("BindableEvent"),
+	OnPartBroken = Instance.new("BindableEvent"),
+	OnBleedingStarted = Instance.new("BindableEvent"),
+	OnFatalDamage = Instance.new("BindableEvent")
+}
+
+--// Private Variables
+local originalStates = {}
+local activeBleedings = {}
+
+--// Private Debug Functions
+local function DebugLog(msg, isWarning)
+	if not Module.DebugMode then return end
+	if isWarning then
+		warn("[DBG-DMG] " .. msg)
+	else
+		print("[DBG-DMG] " .. msg)
+	end
+end
+
+local function DebugVisualSphere(pos, radius)
+	if not Module.DebugMode then return end
+	local sphere = Instance.new("Part")
+	sphere.Shape = Enum.PartType.Ball
+	sphere.Size = Vector3.new(radius * 2, radius * 2, radius * 2)
+	sphere.Position = pos
+	sphere.Anchored = true
+	sphere.CanCollide = false
+	sphere.CanQuery = false
+	sphere.CastShadow = false
+	sphere.Transparency = 0.7
+	sphere.Color = Color3.fromRGB(255, 0, 0)
+	sphere.Material = Enum.Material.ForceField
+	sphere.Parent = workspace
+	Debris:AddItem(sphere, 2)
+end
+
+local function DebugVisualLine(p1, p2, color)
+	if not Module.DebugMode then return end
+	local distance = (p2 - p1).Magnitude
+	local line = Instance.new("Part")
+	line.Size = Vector3.new(0.05, 0.05, distance)
+	line.CFrame = CFrame.lookAt(p1, p2) * CFrame.new(0, 0, -distance / 2)
+	line.Anchored = true
+	line.CanCollide = false
+	line.CanQuery = false
+	line.Color = color or Color3.fromRGB(255, 255, 0)
+	line.Material = Enum.Material.Neon
+	line.Parent = workspace
+	Debris:AddItem(line, 2)
+end
+
+--// Private FX Functions
+local function CreateVisualExplosion(position, radius)
+	local explosion = Instance.new("Explosion")
+	explosion.Position = position
+	explosion.BlastRadius = radius or 5
+	explosion.BlastPressure = 0
+	explosion.DestroyJointRadiusPercent = 0
+	explosion.Visible = true
+	explosion.Parent = workspace
+end
+
+local function ShatterFolder(folder, originPos, explodeForce)
+	for _, part in pairs(folder:GetChildren()) do
+		if part:IsA("BasePart") then
+			for _, joint in pairs(part:GetJoints()) do
+				joint:Destroy()
+			end
+
+			local forceDir = (part.Position - originPos).Unit
+			local randomSpin = Vector3.new(math.random(-50,50), math.random(-50,50), math.random(-50,50))
+
+			local bodyVelocity = Instance.new("BodyVelocity")
+			bodyVelocity.Velocity = forceDir * explodeForce + randomSpin
+			bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)
+			bodyVelocity.Parent = part
+			Debris:AddItem(bodyVelocity, 0.1)
+
+			local bodyAngularVelocity = Instance.new("BodyAngularVelocity")
+			bodyAngularVelocity.AngularVelocity = randomSpin
+			bodyAngularVelocity.MaxTorque = Vector3.new(100000, 100000, 100000)
+			bodyAngularVelocity.Parent = part
+			Debris:AddItem(bodyAngularVelocity, 0.2)
+		end
+	end
+end
+
+--// Private Functions
+local function StartBleeding(humanoid, healthFolder, character)
+	local maxHealth = healthFolder:GetAttribute("MaxHealth") or 100
+	local bleedingLevel = healthFolder:GetAttribute("BleedingLevel") or 1
+	local bleedDamagePerSecond = (maxHealth / 10) * bleedingLevel
+
+	DebugLog("Bleeding Start | " .. healthFolder.Name .. " | " .. string.format("%.1f", bleedDamagePerSecond) .. "/s", true)
+	Module.Events.OnBleedingStarted:Fire(character, healthFolder.Name, bleedDamagePerSecond)
+
+	if bleedDamagePerSecond > 0 then
+		activeBleedings[character] = activeBleedings[character] or {}
+		table.insert(activeBleedings[character], task.spawn(function()
+			while humanoid and humanoid.Health > 0 do
+				humanoid:TakeDamage(bleedDamagePerSecond)
+				task.wait(1)
+			end
+		end))
+	end
+end
+
+--// Public Functions
+function Module.InitCharacter(character)
+	originalStates[character] = {}
+
+	for _, folder in pairs(character:GetDescendants()) do
+		if folder:IsA("Folder") and folder:GetAttribute("Health") then
+			if not folder:GetAttribute("MaxHealth") then
+				folder:SetAttribute("MaxHealth", folder:GetAttribute("Health"))
+			end
+
+			for _, part in pairs(folder:GetChildren()) do
+				if part:IsA("BasePart") then
+					originalStates[character][part] = {
+						Color = part.Color,
+						Material = part.Material
+					}
+				end
+			end
+		end
+	end
+
+	local humanoid = character:WaitForChild("Humanoid")
+	humanoid.Died:Connect(function()
+		Module.Events.OnFatalDamage:Fire(character)
+
+		if character.PrimaryPart then
+			CreateVisualExplosion(character.PrimaryPart.Position, 10)
+		end
+		for _, folder in pairs(character:GetDescendants()) do
+			if folder:IsA("Folder") and folder:GetAttribute("Health") then
+				local centerPart = folder:FindFirstChildOfClass("BasePart")
+				if centerPart then
+					CreateVisualExplosion(centerPart.Position, 4)
+				end
+			end
+		end
+		Module.CleanUp(character)
+	end)
+
+	DebugLog("Init | " .. character.Name)
+end
+
+function Module.ApplyAreaDamage(character, impactPosition, baseDamage, armorPenetration, radius, force)
+	baseDamage = baseDamage or 10
+	armorPenetration = armorPenetration or 1
+	radius = radius or 1
+	force = force or 0
+
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid or humanoid.Health <= 0 then return end
+
+	DebugLog(string.format("Hit @ %s | R:%.1f | Dmg:%.1f | Pen:%d", tostring(impactPosition), radius, baseDamage, armorPenetration))
+	DebugVisualSphere(impactPosition, radius)
+
+	for _, folder in pairs(character:GetDescendants()) do
+		if folder:IsA("Folder") and folder:GetAttribute("Health") then
+			local currentHealth = folder:GetAttribute("Health")
+			if currentHealth <= 0 then continue end
+
+			local closestDistance = math.huge
+			local closestPart = nil
+
+			for _, part in pairs(folder:GetChildren()) do
+				if part:IsA("BasePart") then
+					local dist = (part.Position - impactPosition).Magnitude
+					if dist < closestDistance then
+						closestDistance = dist
+						closestPart = part
+					end
+				end
+			end
+
+			if closestPart and closestDistance <= radius then
+				local distanceMultiplier = 1 - (closestDistance / radius)
+				local localizedDamage = baseDamage * distanceMultiplier
+
+				local armorLevel = folder:GetAttribute("ArmorLevel") or 1
+				local diff = armorLevel - armorPenetration
+				local finalDamage = 0
+
+				if diff >= 2 then
+					finalDamage = 0
+				elseif diff == 1 then
+					finalDamage = localizedDamage / 2
+				else
+					finalDamage = localizedDamage
+				end
+
+				if finalDamage > 0 then
+					local newHealth = math.max(0, currentHealth - finalDamage)
+					folder:SetAttribute("Health", newHealth)
+
+					local maxHealth = folder:GetAttribute("MaxHealth")
+					local healthRatio = newHealth / maxHealth
+
+					DebugLog(string.format("%s | Dist:%.1f | Dmg:%.1f | HP:%.1f/%.1f", folder.Name, closestDistance, finalDamage, newHealth, maxHealth))
+					DebugVisualLine(impactPosition, closestPart.Position, Color3.fromRGB(255, 170, 0))
+
+					Module.Events.OnDamageTaken:Fire(character, folder.Name, finalDamage, newHealth)
+
+					local targetColor = Color3.fromRGB(165, 113, 22)
+
+					for _, part in pairs(folder:GetChildren()) do
+						if part:IsA("BasePart") then
+							local origState = originalStates[character] and originalStates[character][part]
+							if origState then
+								if newHealth <= 0 then
+									part.Color = targetColor
+									part.Material = Enum.Material.Neon
+								else
+									part.Color = origState.Color:Lerp(targetColor, 1 - healthRatio)
+									if healthRatio <= 0.3 then
+										part.Material = Enum.Material.Neon
+									end
+								end
+							end
+						end
+					end
+
+					if newHealth <= 0 then
+						DebugLog(folder.Name .. " BROKEN", true)
+						DebugVisualLine(impactPosition, closestPart.Position, Color3.fromRGB(255, 0, 0))
+
+						Module.Events.OnPartBroken:Fire(character, folder.Name)
+
+						CreateVisualExplosion(closestPart.Position, 5)
+						ShatterFolder(folder, impactPosition, force)
+
+						local isVital = folder:GetAttribute("Vital") or false
+						if isVital then
+							DebugLog("FATAL | " .. folder.Name, true)
+							humanoid.Health = 0
+						else
+							StartBleeding(humanoid, folder, character)
+						end
+					end
+				else
+					DebugLog(string.format("%s | BLOCKED (Armor:%d vs Pen:%d)", folder.Name, armorLevel, armorPenetration))
+					DebugVisualLine(impactPosition, closestPart.Position, Color3.fromRGB(150, 150, 150))
+				end
+			end
+		end
+	end
+end
+
+function Module.CleanUp(character)
+	if originalStates[character] then
+		originalStates[character] = nil
+	end
+	if activeBleedings[character] then
+		for _, thread in ipairs(activeBleedings[character]) do
+			task.cancel(thread)
+		end
+		activeBleedings[character] = nil
+	end
+	DebugLog("CleanUp | " .. character.Name)
+end
+
+--// Return
+return Module</code></pre>
+
+    </main>
+
+    <aside class="right-sidebar">
+        <div class="right-sidebar-title">On this page</div>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#setup">Setup & Installation</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#server-api">Server Methods</a></li>
+            <li class="sub-link"><a href="#init-character">InitCharacter</a></li>
+            <li class="sub-link"><a href="#apply-area-damage">ApplyAreaDamage</a></li>
+            <li class="sub-link"><a href="#clean-up">CleanUp</a></li>
+            <li><a href="#events-api">Events</a></li>
+            <li><a href="#attributes">Folder Attributes</a></li>
+            <li><a href="#example-script">Example Usage</a></li>
+            <li><a href="#source-code">Source Code</a></li>
+            <li class="sub-link"><a href="#code-server">ModuleScript (AD)</a></li>
+        </ul>
+    </aside>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lua.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+</html>
